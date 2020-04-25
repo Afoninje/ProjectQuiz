@@ -4,6 +4,9 @@
       <div class="quiz-header">
         <h1>Quiz Topic</h1>
       </div>
+
+      <div class="step-progress" :style="{'width':progress+'%'}"></div>
+
       <div
         class="main-quiz"
         v-for="(element,index) in questions.slice(a,b)"
@@ -21,7 +24,11 @@
               :key="index"
               :class="select ? check(item): '' "
               @click="selectResponse(item)"
-            >{{item.suggestion}}</li>
+            >
+              {{item.suggestion}}
+              <div class="fas fa-check" v-if="select ? item.correct: ''"></div>
+              <div class="fas fa-times" v-if="select ? !item.correct: ''"></div>
+            </li>
           </ul>
         </div>
       </div>
@@ -36,9 +43,15 @@
         </div>
       </div>
       <div class="quiz-footer">
-        <div class="box-button">
-          <button @click="skipQuestion">Skip</button>
-          <button @click="nextQuestion">Next</button>
+        <div class="box-button" v-if="progress < 100">
+          <button
+            @click="skipQuestion"
+            :style="!next ? 'background-color: rgb(106, 128, 202':''"
+          >Skip</button>
+          <button
+            @click="nextQuestion"
+            :style="next ? 'background-color: rgb(106, 128, 202':''"
+          >Next</button>
         </div>
       </div>
     </div>
@@ -93,12 +106,15 @@ export default {
       select: false,
       score: 0,
       quiz: true,
-      score_show: false
+      score_show: false,
+      next: false,
+      progress: 0
     };
   },
   methods: {
     selectResponse(e) {
       this.select = true;
+      this.next = true;
 
       if (e.correct) {
         this.score++;
@@ -112,6 +128,10 @@ export default {
       }
     },
     nextQuestion() {
+      if (!this.next) {
+        return;
+      }
+      this.progress = this.progress + 100 / this.questions.length;
       if (this.questions.length - 1 == this.a) {
         this.score_show = true;
         this.quiz = false;
@@ -119,9 +139,14 @@ export default {
         this.a++;
         this.b++;
         this.select = false;
+        this.next = false;
       }
     },
     skipQuestion() {
+      if (this.next) {
+        return;
+      }
+      this.progress = this.progress + 100 / this.questions.length;
       if (this.questions.length - 1 == this.a) {
         this.score_show = true;
         this.quiz = false;
