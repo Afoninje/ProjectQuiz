@@ -11,15 +11,23 @@
         </div>
         <div class="box-suggestion">
           <ul>
-            <li v-for="(item,index) in element.suggestions" :key="index" :class="select ? check(item): '' ">{{item.suggestion}}</li>
+            <li
+              v-for="(item,index) in element.suggestions"
+              :key="index"
+              :class="select ? check(item): '' "
+              @click="selectResponse(item)"
+            >{{item.suggestion}}</li>
           </ul>
         </div>
       </div>
-      <div class="box-score"></div>
+      <div class="box-score">
+        <h2>Your Score Is:</h2>
+        <h2>{{score}}/{{questions.length}}</h2>
+      </div>
       <div class="quiz-footer">
         <div class="box-button">
           <button>Skip</button>
-          <button>Next</button>
+          <button @click="nextQuestion">Next</button>
         </div>
       </div>
     </div>
@@ -71,12 +79,17 @@ export default {
       ],
       a: 0,
       b: 1,
-      select: false
+      select: false,
+      score: 0,
     };
   },
   methods: {
-    selectResponse() {
+    selectResponse(e) {
       this.select = true;
+
+      if(e.correct){
+        this.score++;
+      }
     },
     check(status) {
       if (status.correct) {
@@ -84,6 +97,12 @@ export default {
       } else {
         return "incorrect";
       }
+    },
+    nextQuestion()
+    {
+      this.a++;
+      this.b++;
+      this.select = false;
     }
   }
 };
